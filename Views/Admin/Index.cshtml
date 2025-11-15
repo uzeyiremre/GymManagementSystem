@@ -1,0 +1,173 @@
+﻿@using System.Text.Json
+@model GymManagementSystem.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+    var appointmentSeries = Model.RecentAppointments
+        .GroupBy(a => new { a.AppointmentDate.Year, a.AppointmentDate.Month })
+        .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+        .OrderBy(g => g.Year).ThenBy(g => g.Month)
+        .ToList();
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Admin Dashboard</h2>
+            <p class="text-muted mb-0">Sistemin genel durumunu ve son aktiviteleri görüntüleyin.</p>
+        </div>
+        <a asp-controller="Admin" asp-action="Reports" class="btn btn-outline-primary">
+            Raporlara Git
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Üyeler</p>
+                    <h3 class="fw-semibold">@Model.TotalMembers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Antrenörler</p>
+                    <h3 class="fw-semibold">@Model.TotalTrainers</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Bekleyen Randevular</p>
+                    <h3 class="fw-semibold">@Model.PendingAppointments</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Bugünkü Randevular</p>
+                    <h3 class="fw-semibold">@Model.TodayAppointments</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card shadow-sm border-0 bg-primary text-white">
+                <div class="card-body">
+                    <p class="text-uppercase small mb-1">Aylık Gelir</p>
+                    <h3 class="fw-semibold">@Model.MonthlyRevenue.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Son Üyeler</h5>
+                        <a asp-action="Members" class="btn btn-sm btn-outline-secondary">Tümü</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ad Soyad</th>
+                                    <th>Email</th>
+                                    <th>Kayıt Tarihi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var member in Model.RecentMembers)
+                                {
+                                    <tr>
+                                        <td>@(member.User != null ? $"{member.User.FirstName} {member.User.LastName}" : $"{member.FirstName} {member.LastName}")</td>
+                                        <td>@(member.User?.Email ?? member.Email)</td>
+                                        <td>@member.RegisteredAt.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son Randevular</h5>
+                    <a asp-action="Appointments" class="btn btn-sm btn-outline-secondary">Tümü</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Üye</th>
+                                    <th>Antrenör</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var appointment in Model.RecentAppointments)
+                                {
+                                    <tr>
+                                        <td>@(appointment.Member?.User != null ? $"{appointment.Member.User.FirstName} {appointment.Member.User.LastName}" : appointment.Member != null ? $"{appointment.Member.FirstName} {appointment.Member.LastName}" : "-")</td>
+                                        <td>@(appointment.Trainer?.User != null ? $"{appointment.Trainer.User.FirstName} {appointment.Trainer.User.LastName}" : appointment.Trainer != null ? $"{appointment.Trainer.FirstName} {appointment.Trainer.LastName}" : "-")</td>
+                                        <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td><span class="badge bg-secondary">@appointment.Status</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-transparent">
+            <h5 class="mb-0">Aylık Randevu Grafiği</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="appointmentsChart" height="130"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('appointmentsChart');
+        const chartLabels = @Html.Raw(JsonSerializer.Serialize(appointmentSeries.Select(a => $"{a.Month:D2}.{a.Year}")));
+        const chartData = @Html.Raw(JsonSerializer.Serialize(appointmentSeries.Select(a => a.Count)));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Randevu Sayısı',
+                    data: chartData,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.15)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    </script>
+}

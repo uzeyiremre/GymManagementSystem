@@ -1,0 +1,138 @@
+﻿@using System.Text.Json
+@model GymManagementSystem.Models.ViewModels.AdminReportsViewModel
+@{
+    ViewData["Title"] = "Raporlar";
+    var revenueLabels = Model.MonthlyRevenue.Select(m => $"{m.Month:D2}.{m.Year}").ToList();
+    var revenueValues = Model.MonthlyRevenue.Select(m => m.Revenue).ToList();
+    var statusLabels = Model.StatusDistribution.Select(s => s.Status).ToList();
+    var statusValues = Model.StatusDistribution.Select(s => s.Count).ToList();
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Raporlar</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">Dashboard'a Dön</a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Aylık Gelir Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="140"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Randevu Durumları</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">En Popüler Antrenörler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ad</th>
+                                    <th>Randevu Sayısı</th>
+                                    <th>Gelir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var trainer in Model.TopTrainers)
+                                {
+                                    <tr>
+                                        <td>@trainer.TrainerName</td>
+                                        <td>@trainer.Count</td>
+                                        <td>@trainer.Revenue.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Üye İstatistikleri</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Toplam Üye
+                            <span class="fw-semibold">@Model.MemberStats.TotalMembers</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Son 1 Ayda Aktif
+                            <span class="fw-semibold">@Model.MemberStats.ActiveMembers</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Bu Ay Kaydolan
+                            <span class="fw-semibold">@Model.MemberStats.NewThisMonth</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const revenueCtx = document.getElementById('revenueChart');
+        const statusCtx = document.getElementById('statusChart');
+        const revenueLabels = @Html.Raw(JsonSerializer.Serialize(revenueLabels));
+        const revenueData = @Html.Raw(JsonSerializer.Serialize(revenueValues));
+        const statusLabels = @Html.Raw(JsonSerializer.Serialize(statusLabels));
+        const statusData = @Html.Raw(JsonSerializer.Serialize(statusValues));
+
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Gelir',
+                    data: revenueData,
+                    backgroundColor: 'rgba(13,110,253,0.25)',
+                    borderColor: '#0d6efd',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: ['#0d6efd', '#198754', '#dc3545', '#ffc107', '#6c757d']
+                }]
+            }
+        });
+    </script>
+}

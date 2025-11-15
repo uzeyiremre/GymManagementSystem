@@ -1,9 +1,10 @@
-using System;
+﻿using System;
+using GymManagementSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using GymManagementSystem.Models.Entities;
 using GymManagementSystem.Models.ViewModels;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace GymManagementSystem.Controllers
 {
@@ -12,18 +13,24 @@ namespace GymManagementSystem.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
+
+        private const string AdminEmail = "b221210381@ogr.sakarya.edu.tr";
+        private const string LegacyAdminEmail = "b221210381@sakarya.edu.tr";
+        private const string AdminPassword = "sau";
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
-        // Giriş sayfası
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -31,48 +38,66 @@ namespace GymManagementSystem.Controllers
             return View();
         }
 
-        // Giriş işlemi
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
             {
-                // Kullanıcı giriş dene
-                var result = await _signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var input = model.Email?.Trim() ?? string.Empty;
+                var user = await _userManager.FindByEmailAsync(input)
+                    ?? await _userManager.FindByNameAsync(input);
 
-                if (result.Succeeded)
+                if (user == null && input.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase))
                 {
-                    return LocalRedirect(returnUrl ?? "/Home/Index");
+                    user = await _userManager.FindByEmailAsync(LegacyAdminEmail)
+                        ?? await _userManager.FindByNameAsync(LegacyAdminEmail);
                 }
 
-                if (result.IsLockedOut)
+                if (user != null)
                 {
-                    return RedirectToAction(nameof(Lockout));
-                }
+                    var userName = user.UserName ?? user.Email ?? user.Id;
+                    var result = await _signInManager.PasswordSignInAsync(
+                        userName,
+                        model.Password,
+                        model.RememberMe,
+                        lockoutOnFailure: false);
 
-                ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi");
+                    if (result.Succeeded)
+                    {
+                        return LocalRedirect(returnUrl ?? "/Home/Index");
+                    }
+
+                    if (result.IsLockedOut)
+                    {
+                        return RedirectToAction(nameof(Lockout));
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Kullanıcı bulunamadı");
+                }
             }
 
             return View(model);
         }
 
-        // Kayıt sayfası
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // Kayıt işlemi
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Yeni kullanıcı oluştur
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
@@ -82,21 +107,34 @@ namespace GymManagementSystem.Controllers
                     EmailConfirmed = true
                 };
 
-                // Şifre ile kaydet
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    // Member rolü ekle
                     await _userManager.AddToRoleAsync(user, "Member");
 
-                    // Otomatik giriş yap
+                    if (!await _context.Members.AnyAsync(m => m.UserId == user.Id))
+                    {
+                        var member = new Member
+                        {
+                            UserId = user.Id,
+                            FirstName = user.FirstName,
+                            LastName = user.LastName,
+                            Email = user.Email ?? user.UserName ?? string.Empty,
+                            MembershipDate = DateTime.Now,
+                            RegisteredAt = DateTime.Now,
+                            IsActive = true
+                        };
+
+                        _context.Members.Add(member);
+                        await _context.SaveChangesAsync();
+                    }
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
                     return RedirectToAction("Index", "Home");
                 }
 
-                // Hataları göster
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -106,18 +144,46 @@ namespace GymManagementSystem.Controllers
             return View(model);
         }
 
-        // Çıkış
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
-        // Kilit açma
         public IActionResult Lockout()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DebugAdmin()
+        {
+            var user = await _userManager.FindByEmailAsync(AdminEmail)
+                ?? await _userManager.FindByNameAsync(AdminEmail)
+                ?? await _userManager.FindByEmailAsync(LegacyAdminEmail)
+                ?? await _userManager.FindByNameAsync(LegacyAdminEmail)
+                ?? await _userManager.Users.FirstOrDefaultAsync(u =>
+                    u.NormalizedEmail == AdminEmail.ToUpperInvariant() ||
+                    u.NormalizedEmail == LegacyAdminEmail.ToUpperInvariant());
+
+            if (user == null)
+            {
+                return Ok("Kullanıcı bulunamadı");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var canLogin = await _signInManager.CheckPasswordSignInAsync(user, AdminPassword, false);
+
+            return Ok(new
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                Roles = roles,
+                CanLogin = canLogin.Succeeded
+            });
         }
     }
 }

@@ -1,0 +1,59 @@
+﻿@model GymManagementSystem.Models.ViewModels.TrainerFormViewModel
+@{
+    ViewData["Title"] = "Yeni Antrenör";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4">Yeni Antrenör Ekle</h2>
+
+    <form asp-action="CreateTrainer" method="post" class="card card-body shadow-sm border-0">
+        @Html.AntiForgeryToken()
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Ad</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Soyad</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Telefon</label>
+                <input asp-for="Phone" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Uzmanlık</label>
+                <input asp-for="Specialization" class="form-control" />
+                <span asp-validation-for="Specialization" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Saatlik Ücret</label>
+                <input asp-for="HourlyRate" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="HourlyRate" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Biyografi</label>
+                <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="col-12 form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label">Aktif</label>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <a asp-action="Trainers" class="btn btn-outline-secondary">İptal</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

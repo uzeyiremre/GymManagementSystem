@@ -25,9 +25,29 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (User?.IsInRole("Admin") ?? false)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Admin Panel</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Members">Üyeler</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Trainers">Antrenörler</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Appointments">Randevular</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Raporlar</a></li>
+                                </ul>
+                            </li>
+                        }
+                        @if (User?.IsInRole("Member") ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Randevularım</a>
+                            </li>
+                        }
                     </ul>
 
-                    <!-- Giriş/Kayıt veya Çıkış -->
                     <ul class="navbar-nav ms-auto">
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {

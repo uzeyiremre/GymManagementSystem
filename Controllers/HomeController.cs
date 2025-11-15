@@ -1,3 +1,5 @@
+using GymManagementSystem.Models.ViewModels;
+
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using GymManagementSystem.Models;
