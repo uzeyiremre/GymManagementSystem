@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GymManagementSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-3hYp8KX2HFqRSbVSSMzdg3NofM8JrIoYNewc19hXtOD87mpy4V/mQJu1nvLKYj1WFJsbgx5caX5/C/PObbIVdQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GymManagementSystem.styles.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
 </head>
 <body>
+    @{
+        var fullWidthLayout = (ViewData["FullWidthLayout"] as bool?) ?? false;
+    }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -40,10 +45,27 @@
                                 </ul>
                             </li>
                         }
+                        @if (User?.IsInRole("Trainer") ?? false)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Antrenör Paneli</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="MyAppointments">Randevularım</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Availability">Müsaitlik</a></li>
+                                </ul>
+                            </li>
+                        }
                         @if (User?.IsInRole("Member") ?? false)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Randevularım</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Member" asp-action="Profile">Profilim</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AIAssistant" asp-action="Index">🤖 AI Yardımcım</a>
                             </li>
                         }
                     </ul>
@@ -74,7 +96,7 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="@(fullWidthLayout ? "container-fluid p-0" : "container")">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -88,6 +110,36 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+            <div class="toast show">
+                <div class="toast-header bg-success text-white">
+                    <strong class="me-auto">Başarılı</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    @TempData["SuccessMessage"]
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+            <div class="toast show">
+                <div class="toast-header bg-danger text-white">
+                    <strong class="me-auto">Hata</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    @TempData["ErrorMessage"]
+                </div>
+            </div>
+        </div>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

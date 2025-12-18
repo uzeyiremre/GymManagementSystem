@@ -124,6 +124,7 @@ namespace GymManagementSystem.Controllers
                 Bio = model.Bio,
                 HourlyRate = model.HourlyRate,
                 IsActive = model.IsActive,
+                ExperienceYears = model.ExperienceYears,
                 GymId = gymId
             };
 
@@ -153,6 +154,7 @@ namespace GymManagementSystem.Controllers
                 Specialization = trainer.Specialization,
                 Bio = trainer.Bio,
                 HourlyRate = trainer.HourlyRate,
+                ExperienceYears = trainer.ExperienceYears,
                 IsActive = trainer.IsActive
             };
 
@@ -181,6 +183,7 @@ namespace GymManagementSystem.Controllers
             trainer.Specialization = model.Specialization;
             trainer.Bio = model.Bio;
             trainer.HourlyRate = model.HourlyRate;
+            trainer.ExperienceYears = model.ExperienceYears;
             trainer.IsActive = model.IsActive;
 
             await _context.SaveChangesAsync();

@@ -20,6 +20,7 @@ namespace GymManagementSystem.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<TrainerAvailability> TrainerAvailabilities { get; set; }
+        public DbSet<AIConversation> AIConversations { get; set; }
         public DbSet<MembershipPlan> MembershipPlans { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

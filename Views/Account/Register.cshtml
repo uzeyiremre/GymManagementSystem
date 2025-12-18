@@ -3,60 +3,81 @@
     ViewData["Title"] = "Kayıt Ol";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h2 class="text-center mb-4">📝 Kayıt Ol</h2>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h2>Yeni Hesap Oluştur</h2>
+            <p class="text-muted">Randevularını kolayca yönetmek için aramıza katıl.</p>
+        </div>
 
-                    <form asp-action="Register" method="post">
-                        <div class="mb-3">
-                            <label asp-for="FirstName" class="form-label">Ad</label>
-                            <input asp-for="FirstName" class="form-control" placeholder="Adınız" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="LastName" class="form-label">Soyad</label>
-                            <input asp-for="LastName" class="form-control" placeholder="Soyadınız" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control" placeholder="ornek@ogr.sakarya.edu.tr" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Şifre</label>
-                            <input asp-for="Password" type="password" class="form-control" placeholder="En az 6 karakter" />
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
-                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Şifrenizi tekrar girin" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <button type="submit" class="btn btn-success w-100 mb-3">Kayıt Ol</button>
-
-                        <div class="text-center">
-                            <p>Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a></p>
-                        </div>
-                    </form>
+        <form asp-action="Register" method="post" id="registerForm">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label">Ad</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input asp-for="FirstName" class="form-control" placeholder="Adınız" />
+                    </div>
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label">Soyad</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input asp-for="LastName" class="form-control" placeholder="Soyadınız" />
+                    </div>
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                        <input asp-for="Email" class="form-control" placeholder="ornek@ogr.sakarya.edu.tr" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label">Şifre</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="En az 6 karakter" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Tekrar şifreniz" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                 </div>
             </div>
-        </div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger small my-3"></div>
+
+            <button type="submit" class="btn btn-success w-100" id="registerSubmit">
+                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                Kayıt Ol
+            </button>
+
+            <div class="text-center mt-3">
+                <p>Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a></p>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const registerSubmit = document.getElementById('registerSubmit');
+        const registerSpinner = registerSubmit.querySelector('.spinner-border');
+        registerForm.addEventListener('submit', () => {
+            registerSpinner.classList.remove('d-none');
+            registerSubmit.setAttribute('disabled', 'disabled');
+        });
+    </script>
 }

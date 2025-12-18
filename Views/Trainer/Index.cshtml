@@ -1,0 +1,133 @@
+@model GymManagementSystem.Models.ViewModels.TrainerDashboardViewModel
+@{
+    ViewData["Title"] = "Antrenör Paneli";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Merhaba, eğitmen!</h2>
+            <p class="text-muted mb-0">Bugünkü performansınızı ve yaklaşan randevularınızı görüntüleyin.</p>
+        </div>
+        <a asp-controller="Trainer" asp-action="MyAppointments" class="btn btn-outline-primary">Tüm Randevuları Gör</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Bugünkü Randevular</p>
+                    <h3 class="fw-semibold">@Model.TodayAppointmentsCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Yaklaşan</p>
+                    <h3 class="fw-semibold">@Model.UpcomingAppointmentsCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Aylık Gelir</p>
+                    <h3 class="fw-semibold">@Model.MonthlyRevenue.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <p class="text-muted text-uppercase small mb-1">Aktif Müşteri</p>
+                    <h3 class="fw-semibold">@Model.TotalClients</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Bugünkü Randevular</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.TodayAppointments.Any())
+                    {
+                        <p class="text-muted mb-0">Bugün için randevu bulunmuyor.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Üye</th>
+                                        <th>Servis</th>
+                                        <th>Saat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model.TodayAppointments)
+                                    {
+                                        var memberName = appointment.Member?.User != null
+                                            ? $"{appointment.Member.User.FirstName} {appointment.Member.User.LastName}"
+                                            : appointment.Member != null ? $"{appointment.Member.FirstName} {appointment.Member.LastName}" : "-";
+                                        <tr>
+                                            <td>@memberName</td>
+                                            <td>@(appointment.Service?.Name ?? "-")</td>
+                                            <td>@appointment.AppointmentDate.ToString("HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Yaklaşan Randevular</h5>
+                    <a asp-action="MyAppointments" class="btn btn-sm btn-outline-secondary">Görüntüle</a>
+                </div>
+                <div class="card-body">
+                    @if (!Model.UpcomingAppointments.Any())
+                    {
+                        <p class="text-muted mb-0">Yaklaşan randevu bulunmuyor.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Üye</th>
+                                        <th>Tarih</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model.UpcomingAppointments)
+                                    {
+                                        var memberName = appointment.Member?.User != null
+                                            ? $"{appointment.Member.User.FirstName} {appointment.Member.User.LastName}"
+                                            : appointment.Member != null ? $"{appointment.Member.FirstName} {appointment.Member.LastName}" : "-";
+                                        <tr>
+                                            <td>@memberName</td>
+                                            <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td><span class="badge bg-info">@appointment.Status</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

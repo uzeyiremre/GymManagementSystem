@@ -44,6 +44,8 @@ namespace GymManagementSystem.Models.Entities
 
         public string? ImageUrl { get; set; }
 
+        public int ExperienceYears { get; set; } = 0;
+
         public bool IsActive { get; set; } = true;
 
         public string? UserId { get; set; }

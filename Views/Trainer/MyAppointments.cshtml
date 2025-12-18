@@ -1,0 +1,117 @@
+@model IEnumerable<GymManagementSystem.Models.Entities.Appointment>
+@{
+    ViewData["Title"] = "Randevularım";
+    var currentStatus = (ViewBag.CurrentStatus as string ?? "All").ToString();
+    var statuses = new[] { "All", "Scheduled", "Completed", "Cancelled" };
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Randevularım</h2>
+        <div class="btn-group">
+            @foreach (var status in statuses)
+            {
+                var activeClass = status == currentStatus ? "btn-primary" : "btn-outline-primary";
+                <a asp-action="MyAppointments" asp-route-status="@status" class="btn @activeClass btn-sm">@status</a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Herhangi bir randevu bulunamadı.</div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm border rounded">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Üye</th>
+                        <th>Servis</th>
+                        <th>Tarih</th>
+                        <th>Durum</th>
+                        <th>Notlar</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appointment in Model)
+                    {
+                        var memberName = appointment.Member?.User != null
+                            ? $"{appointment.Member.User.FirstName} {appointment.Member.User.LastName}"
+                            : appointment.Member != null ? $"{appointment.Member.FirstName} {appointment.Member.LastName}" : "-";
+                        <tr>
+                            <td>@memberName</td>
+                            <td>@(appointment.Service?.Name ?? "-")</td>
+                            <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @switch (appointment.Status)
+                                {
+                                    case "Scheduled":
+                                        <span class="badge bg-info">Planlandı</span>
+                                        break;
+                                    case "Completed":
+                                        <span class="badge bg-success">Tamamlandı</span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger">İptal</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@appointment.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(appointment.Notes) ? "-" : appointment.Notes)</td>
+                            <td>
+                                @if (appointment.Status != "Completed" && appointment.Status != "Cancelled")
+                                {
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#completeModal-@appointment.AppointmentId">
+                                        Tamamla
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="completeModal-@appointment.AppointmentId" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Randevuyu Tamamla</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="CompleteAppointment" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" value="@appointment.AppointmentId" />
+                                            <div class="mb-3">
+                                                <label class="form-label">Notlar (opsiyonel)</label>
+                                                <textarea name="notes" class="form-control" rows="3">@appointment.Notes</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                                            <button type="submit" class="btn btn-primary">Tamamla</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

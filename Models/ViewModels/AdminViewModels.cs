@@ -48,6 +48,8 @@ namespace GymManagementSystem.Models.ViewModels
         [Range(0, double.MaxValue)]
         public decimal HourlyRate { get; set; }
         public bool IsActive { get; set; } = true;
+        [Range(0, 50)]
+        public int ExperienceYears { get; set; }
     }
 
     public class AdminReportsViewModel

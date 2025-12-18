@@ -1,22 +1,92 @@
 html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+  font-size: 16px;
+  scroll-behavior: smooth;
 }
 
 body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8f9fb;
+  color: #1f2a37;
   margin-bottom: 60px;
+}
+
+.hero-section {
+  min-height: 60vh;
+  background: linear-gradient(135deg, #0d6efd, #6f42c1);
+}
+
+.feature-cards .feature-card {
+  background: #fff;
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 30px rgba(13, 110, 253, 0.15);
+}
+
+.feature-card .icon {
+  font-size: 2rem;
+}
+
+.trainer-card img {
+  object-fit: cover;
+}
+
+.auth-wrapper {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(111, 66, 193, 0.08));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+}
+
+.auth-card .input-group-text {
+  background: transparent;
+  border-right: none;
+}
+
+.auth-card .form-control {
+  border-left: none;
+}
+
+.auth-card .form-control:focus {
+  box-shadow: none;
+  border-color: #0d6efd;
+}
+
+.trainer-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.trainer-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 40px rgba(15, 23, 42, 0.15);
+}
+
+.toast {
+  min-width: 280px;
+}
+
+.counter {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.btn:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }

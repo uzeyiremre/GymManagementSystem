@@ -1,0 +1,232 @@
+@model GymManagementSystem.Models.ViewModels.AIAssistantViewModel
+@{
+    ViewData["Title"] = "AI Fitness Koçum";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg border-0" style="height: 85vh;">
+                <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">🤖 AI Fitness Koçum</h5>
+                        <small>Kişisel yapay zeka antrenörünüz</small>
+                    </div>
+                    <form asp-action="ClearHistory" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-outline-light" type="submit">
+                            🗑️ Geçmişi Temizle
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card-body overflow-auto" id="chatContainer" style="height: 60vh; background: #f8f9fa;">
+                    @foreach (var msg in Model.ConversationHistory)
+                    {
+                        if (msg.Role == "user")
+                        {
+                            <div class="d-flex justify-content-end mb-3">
+                                <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                                    @msg.Content
+                                    <div class="small mt-1 opacity-75">@msg.CreatedAt.ToString("HH:mm")</div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-start mb-3">
+                                <div class="bg-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                                    <strong>🤖 AI Koç:</strong>
+                                    <div class="mt-2">@Html.Raw(msg.Content.Replace("\n", "<br>"))</div>
+                                    <div class="small mt-1 text-muted">@msg.CreatedAt.ToString("HH:mm")</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div id="loadingIndicator" class="d-none text-center my-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        <div class="mt-2 text-muted">AI düşünüyor...</div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-top">
+                    <div class="collapse mb-3" id="quickInfoForm">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="number" id="userHeight" class="form-control" placeholder="Boy (cm)">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" id="userWeight" class="form-control" placeholder="Kilo (kg)">
+                            </div>
+                            <div class="col-md-4">
+                                <select id="userBodyType" class="form-select">
+                                    <option value="">Vücut Tipi</option>
+                                    <option value="Ectomorph">Ectomorph</option>
+                                    <option value="Mesomorph">Mesomorph</option>
+                                    <option value="Endomorph">Endomorph</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="imagePreview" class="d-none mb-2">
+                        <div class="position-relative d-inline-block">
+                            <img id="previewImg" src="" class="rounded" style="max-height: 100px;">
+                            <button class="btn btn-sm btn-danger position-absolute top-0 end-0" type="button" onclick="removeImage()">×</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickInfoForm">
+                            📊 Bilgilerim
+                        </button>
+                        <input type="file" id="imageInput" accept="image/*" class="d-none" onchange="handleImageUpload(event)">
+                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('imageInput').click()">
+                            📷 Fotoğraf
+                        </button>
+                        <textarea id="messageInput" class="form-control" placeholder="Mesajınızı yazın..." rows="1" onkeypress="handleKeyPress(event)"></textarea>
+                        <button class="btn btn-primary" type="button" onclick="sendMessage()">
+                            Gönder 🚀
+                        </button>
+                    </div>
+
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Vücudumu geliştirmek için nasıl bir program uygulamalıyım?')">
+                            💪 Vücut Geliştirme
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Kas kütlesi kazanmak için beslenme önerisi ver')">
+                            🍽️ Beslenme
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Bu hafta için kombin egzersiz planı öner')">
+                            📅 Haftalık Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentImageBase64 = null;
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                currentImageBase64 = e.target.result.split(',')[1];
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function removeImage() {
+        currentImageBase64 = null;
+        document.getElementById('imagePreview').classList.add('d-none');
+        document.getElementById('imageInput').value = '';
+    }
+
+    function quickPrompt(message) {
+        document.getElementById('messageInput').value = message;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+        if (!message && !currentImageBase64) return;
+
+        const data = {
+            message: message || "Bu fotoğrafı analiz eder misin?",
+            imageBase64: currentImageBase64,
+            height: document.getElementById('userHeight').value,
+            weight: document.getElementById('userWeight').value,
+            bodyType: document.getElementById('userBodyType').value
+        };
+
+        addMessageToChat('user', data.message);
+        messageInput.value = '';
+        removeImage();
+        toggleLoading(true);
+
+        try {
+            const response = await fetch('@Url.Action("SendMessage", "AIAssistant")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            toggleLoading(false);
+
+            if (result.success) {
+                addMessageToChat('assistant', result.response);
+            } else {
+                addMessageToChat('assistant', '❌ ' + result.error);
+            }
+        } catch (error) {
+            toggleLoading(false);
+            addMessageToChat('assistant', '❌ Bağlantı hatası: ' + error.message);
+        }
+    }
+
+    function addMessageToChat(role, content) {
+        const container = document.getElementById('chatContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const messageDiv = document.createElement('div');
+
+        if (role === 'user') {
+            messageDiv.className = 'd-flex justify-content-end mb-3';
+            messageDiv.innerHTML = `
+                <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                    ${content}
+                    <div class="small mt-1 opacity-75">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>`;
+        } else {
+            messageDiv.className = 'd-flex justify-content-start mb-3';
+            messageDiv.innerHTML = `
+                <div class="bg-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                    <strong>🤖 AI Koç:</strong>
+                    <div class="mt-2">${content.replace(/\n/g, '<br>')}</div>
+                    <div class="small mt-1 text-muted">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>`;
+        }
+
+        container.insertBefore(messageDiv, loadingIndicator);
+        scrollToBottom();
+    }
+
+    function toggleLoading(show) {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (show) {
+            loadingIndicator.classList.remove('d-none');
+        } else {
+            loadingIndicator.classList.add('d-none');
+        }
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        const container = document.getElementById('chatContainer');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    window.addEventListener('load', scrollToBottom);
+</script>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>

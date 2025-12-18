@@ -24,6 +24,7 @@
                     <th>Ad Soyad</th>
                     <th>Uzmanlık</th>
                     <th>Email</th>
+                    <th>Deneyim</th>
                     <th>Saatlik Ücret</th>
                     <th>Durum</th>
                     <th style="width: 210px;">İşlemler</th>
@@ -39,6 +40,7 @@
                         <td>@fullName</td>
                         <td>@trainer.Specialization</td>
                         <td>@(trainer.User?.Email ?? trainer.Email)</td>
+                        <td>@trainer.ExperienceYears yıl</td>
                         <td>@trainer.HourlyRate.ToString("C")</td>
                         <td>
                             @if (trainer.IsActive)
