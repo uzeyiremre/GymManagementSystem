@@ -46,7 +46,9 @@ namespace GymManagementSystem.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
-                PhoneNumber = user.PhoneNumber,
+                PhoneNumber = user.PhoneNumber ?? member.Phone,
+                Height = member.Height,
+                Weight = member.Weight,
                 RegisteredAt = member.RegisteredAt,
                 MembershipPlanName = member.MembershipPlan?.Name ?? "Plan Yok",
                 TotalAppointments = await _context.Appointments.CountAsync(a => a.MemberId == member.MemberId),
@@ -63,8 +65,8 @@ namespace GymManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Lütfen zorunlu alanları doldurun.";
-                return RedirectToAction(nameof(Profile));
+                TempData["ErrorMessage"] = "Lütfen zorunlu alanları kontrol edin.";
+                return View("Profile", model);
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -73,11 +75,24 @@ namespace GymManagementSystem.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            var member = await _context.Members.FirstOrDefaultAsync(m => m.UserId == user.Id);
+            if (member == null)
+            {
+                TempData["ErrorMessage"] = "Üye kaydı bulunamadı.";
+                return RedirectToAction(nameof(Profile));
+            }
+
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.PhoneNumber = model.PhoneNumber;
 
+            member.Phone = model.PhoneNumber;
+            member.Height = model.Height;
+            member.Weight = model.Weight;
+
             await _userManager.UpdateAsync(user);
+            _context.Members.Update(member);
+            await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Profil güncellendi!";
             return RedirectToAction(nameof(Profile));
