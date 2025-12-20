@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Text;
+using System.Net.Http.Json;
 using System.Text.Json;
 using GymManagementSystem.Data;
 using GymManagementSystem.Models.Entities;
@@ -21,9 +20,15 @@ namespace GymManagementSystem.Services
         private readonly ApplicationDbContext _context;
         private readonly string _apiKey;
         private readonly HttpClient _httpClient;
+
         private const string GeminiApiVersion = "v1beta";
-        private const string GeminiModel = "gemini-1.5-flash-latest";
+        private const string GeminiModel = "gemini-2.5-flash";
         private const string GeminiBaseUrl = "https://generativelanguage.googleapis.com";
+
+        // Basit hız sınırlama
+        private static readonly object _rateLock = new();
+        private static readonly Queue<DateTime> _requestLog = new();
+        private const int MaxRequestsPerMinute = 15;
 
         public GeminiService(IConfiguration configuration, ApplicationDbContext context, IHttpClientFactory httpClientFactory)
         {
@@ -34,126 +39,129 @@ namespace GymManagementSystem.Services
 
         public async Task<string> GetFitnessAdviceAsync(string userMessage, string? userHeight = null, string? userWeight = null, string? bodyType = null)
         {
-            try
+            var systemPromptText = @"Sen profesyonel bir fitness koçu ve diyetisyensin.
+Türkçe konuşuyorsun ve kullanıcılara:
+- Egzersiz programları öneriyorsun
+- Diyet planları hazırlıyorsun
+- Motivasyon sağlıyorsun
+- Vücut geliştirme tavsiyeleri veriyorsun
+Cevapların detaylı, bilimsel ve motive edici olmalı.";
+
+            var contextInfo = string.Empty;
+            if (!string.IsNullOrWhiteSpace(userHeight) && !string.IsNullOrWhiteSpace(userWeight))
             {
-                var systemPrompt = "Sen profesyonel bir fitness koçu ve diyetisyensin. Türkçe konuşuyorsun ve kullanıcılara egzersiz programları öneriyorsun, diyet planları hazırlıyorsun, motivasyon sağlıyorsun ve vücut geliştirme tavsiyeleri veriyorsun. Cevapların detaylı, bilimsel ve motive edici olmalı.";
-
-                var userContext = "";
-                if (!string.IsNullOrEmpty(userHeight) && !string.IsNullOrEmpty(userWeight))
+                contextInfo = $"\n\n[Kullanıcı Verileri -> Boy: {userHeight} cm, Kilo: {userWeight} kg";
+                if (!string.IsNullOrWhiteSpace(bodyType))
                 {
-                    userContext = $"\n\nKullanıcı Bilgileri:\n- Boy: {userHeight} cm\n- Kilo: {userWeight} kg";
-                    if (!string.IsNullOrEmpty(bodyType))
-                        userContext += $"\n- Vücut Tipi: {bodyType}";
+                    contextInfo += $", Vücut Tipi: {bodyType}";
                 }
+                contextInfo += "]";
+            }
 
-                var fullMessage = systemPrompt + "\n\n" + userMessage + userContext;
+            var finalUserMessage = userMessage + contextInfo;
 
-                var payload = new
+            var payload = new
+            {
+                systemInstruction = new
                 {
-                    contents = new[]
+                    parts = new object[]
                     {
-                        new
+                        new { text = systemPromptText }
+                    }
+                },
+                contents = new object[]
+                {
+                    new
+                    {
+                        role = "user",
+                        parts = new object[]
                         {
-                            role = "user",
-                            parts = new[] { new { text = fullMessage } }
+                            new { text = finalUserMessage }
                         }
                     }
-                };
-
-                var json = JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(
-                    $"{GeminiBaseUrl}/{GeminiApiVersion}/models/{GeminiModel}:generateContent?key={_apiKey}",
-                    content
-                );
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return $"❌ Gemini API Hatası: {responseContent}";
                 }
+            };
 
-                var jsonResponse = JsonDocument.Parse(responseContent);
-                var text = jsonResponse.RootElement
-                    .GetProperty("candidates")[0]
-                    .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
-                    .GetString();
-
-                await SaveConversationMessageAsync(userMessage, "user", userMessage);
-                await SaveConversationMessageAsync(userMessage, "assistant", text ?? "Cevap alınamadı.");
-
-                return text ?? "AI'dan cevap alınamadı.";
-            }
-            catch (Exception ex)
-            {
-                return $"❌ Hata: {ex.Message}";
-            }
+            return await SendGeminiRequestAsync(payload);
         }
 
         public async Task<string> AnalyzeBodyPhotoAsync(string imageBase64, string userMessage)
         {
-            try
+            var systemPromptText = @"Sen uzman bir vücut geliştirme antrenörüsün.
+Gönderilen fotoğrafı analiz et:
+1. Vücut yağ oranı tahmini yap.
+2. Kas kütlesi ve simetri durumunu değerlendir.
+3. Eksik bölgeleri tespit et.
+4. Bu kişiye özel tavsiyeler ver.
+Yanıtın Türkçe, profesyonel ve yapıcı olsun.";
+
+            var payload = new
             {
-                var systemPrompt = "Sen bir fitness uzmanısın. Kullanıcının yüklediği fotoğrafa bakarak: 1. Vücut kompozisyonunu analiz et (kas/yağ oranı tahmini), 2. Güçlü ve geliştirilmesi gereken bölgeleri belirle, 3. Özel egzersiz önerileri sun, 4. Motivasyon ver. Türkçe, nazik ve profesyonel bir dille cevap ver.";
-
-                var fullMessage = systemPrompt + "\n\n" + userMessage;
-
-                var payload = new
+                systemInstruction = new
                 {
-                    contents = new[]
+                    parts = new object[]
                     {
-                        new
+                        new { text = systemPromptText }
+                    }
+                },
+                contents = new object[]
+                {
+                    new
+                    {
+                        role = "user",
+                        parts = new object[]
                         {
-                            role = "user",
-                            parts = new object[]
+                            new { text = userMessage },
+                            new
                             {
-                                new { text = fullMessage },
-                                new
+                                inline_data = new
                                 {
-                                    inline_data = new
-                                    {
-                                        mime_type = "image/jpeg",
-                                        data = imageBase64
-                                    }
+                                    mime_type = "image/jpeg",
+                                    data = imageBase64
                                 }
                             }
                         }
                     }
-                };
-
-                var json = JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(
-                    $"{GeminiBaseUrl}/{GeminiApiVersion}/models/{GeminiModel}:generateContent?key={_apiKey}",
-                    content
-                );
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return $"❌ Gemini API Hatası: {responseContent}";
                 }
+            };
 
-                var jsonResponse = JsonDocument.Parse(responseContent);
-                var text = jsonResponse.RootElement
-                    .GetProperty("candidates")[0]
-                    .GetProperty("content")
-                    .GetProperty("parts")[0]
-                    .GetProperty("text")
-                    .GetString();
+            return await SendGeminiRequestAsync(payload);
+        }
 
-                return text ?? "AI'dan fotoğraf analizi alınamadı.";
-            }
-            catch (Exception ex)
+        private async Task<string> SendGeminiRequestAsync(object payload)
+        {
+            await EnforceRateLimitAsync();
+
+            var requestUri = $"{GeminiBaseUrl}/{GeminiApiVersion}/models/{GeminiModel}:generateContent?key={_apiKey}";
+
+            var jsonOptions = new JsonSerializerOptions
             {
-                return $"❌ Hata: {ex.Message}";
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            using var response = await _httpClient.PostAsJsonAsync(requestUri, payload, jsonOptions);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException($"Gemini API Hatası ({response.StatusCode}): {jsonResponse}");
             }
+
+            using var document = JsonDocument.Parse(jsonResponse);
+
+            if (document.RootElement.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
+            {
+                var candidate = candidates[0];
+                if (candidate.TryGetProperty("content", out var content) &&
+                    content.TryGetProperty("parts", out var parts) &&
+                    parts.GetArrayLength() > 0)
+                {
+                    var text = parts[0].GetProperty("text").GetString();
+                    return text ?? "Cevap metni boş döndü.";
+                }
+            }
+
+            return "AI mantıklı bir cevap oluşturamadı.";
         }
 
         public async Task<List<ChatMessage>> GetConversationHistoryAsync(string userId)
@@ -167,11 +175,11 @@ namespace GymManagementSystem.Services
             var messages = new List<ChatMessage>();
             foreach (var msg in history)
             {
-                if (msg.Role == "assistant")
-                    messages.Add(ChatMessage.CreateAssistantMessage(msg.Content));
-                else
-                    messages.Add(ChatMessage.CreateUserMessage(msg.Content));
+                messages.Add(msg.Role == "assistant"
+                    ? ChatMessage.CreateAssistantMessage(msg.Content)
+                    : ChatMessage.CreateUserMessage(msg.Content));
             }
+
             return messages;
         }
 
@@ -184,8 +192,47 @@ namespace GymManagementSystem.Services
                 Content = content,
                 CreatedAt = DateTime.Now
             };
+
             _context.AIConversations.Add(record);
             await _context.SaveChangesAsync();
+        }
+
+        private static async Task EnforceRateLimitAsync()
+        {
+            var window = TimeSpan.FromMinutes(1);
+            var delay = TimeSpan.Zero;
+
+            lock (_rateLock)
+            {
+                var now = DateTime.UtcNow;
+                while (_requestLog.Count > 0 && now - _requestLog.Peek() > window)
+                {
+                    _requestLog.Dequeue();
+                }
+
+                if (_requestLog.Count >= MaxRequestsPerMinute)
+                {
+                    var wait = window - (now - _requestLog.Peek());
+                    if (wait > TimeSpan.Zero)
+                    {
+                        delay = wait;
+                    }
+                }
+
+                if (delay == TimeSpan.Zero)
+                {
+                    _requestLog.Enqueue(DateTime.UtcNow);
+                }
+            }
+
+            if (delay > TimeSpan.Zero)
+            {
+                await Task.Delay(delay);
+                lock (_rateLock)
+                {
+                    _requestLog.Enqueue(DateTime.UtcNow);
+                }
+            }
         }
     }
 }
