@@ -59,6 +59,7 @@ namespace GymManagementSystem.Controllers
                     .ToListAsync(),
                 UpcomingAppointmentsCount = await upcomingQuery.CountAsync(),
                 UpcomingAppointments = await upcomingQuery.Take(5).ToListAsync(),
+                PendingRequestsCount = await appointmentsQuery.CountAsync(a => a.Status == "Pending"),
                 MonthlyRevenue = await appointmentsQuery
                     .Where(a => a.Status == "Completed"
                         && a.AppointmentDate.Month == DateTime.Now.Month
