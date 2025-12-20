@@ -10,54 +10,50 @@
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">Admin Dashboard</h2>
-            <p class="text-muted mb-0">Sistemin genel durumunu ve son aktiviteleri görüntüleyin.</p>
+    <div class="rounded-4 gradient-blue text-white p-4 mb-4 shadow-soft">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div>
+                <p class="mb-1 text-uppercase fw-bold">Kontrol Merkezi</p>
+                <h2 class="mb-0 fw-bold">Admin Dashboard</h2>
+                <p class="mb-0">Sistemin durumunu takip edin, verileri analiz edin.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Admin" asp-action="Reports" class="btn btn-outline-light">Raporlara Git</a>
+                <a asp-controller="Admin" asp-action="Appointments" class="btn btn-primary text-dark">Randevular</a>
+            </div>
         </div>
-        <a asp-controller="Admin" asp-action="Reports" class="btn btn-outline-primary">
-            Raporlara Git
-        </a>
     </div>
 
     <div class="row g-3">
         <div class="col-sm-6 col-lg-3">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-orange h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Üyeler</p>
-                    <h3 class="fw-semibold">@Model.TotalMembers</h3>
+                    <h3 class="fw-bold mb-0">@Model.TotalMembers</h3>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-blue h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Antrenörler</p>
-                    <h3 class="fw-semibold">@Model.TotalTrainers</h3>
+                    <h3 class="fw-bold mb-0">@Model.TotalTrainers</h3>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-yellow h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Bekleyen Randevular</p>
-                    <h3 class="fw-semibold">@Model.PendingAppointments</h3>
+                    <h3 class="fw-bold mb-0">@Model.PendingAppointments</h3>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-green h-100">
                 <div class="card-body">
-                    <p class="text-muted text-uppercase small mb-1">Bugünkü Randevular</p>
-                    <h3 class="fw-semibold">@Model.TodayAppointments</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="card shadow-sm border-0 bg-primary text-white">
-                <div class="card-body">
-                    <p class="text-uppercase small mb-1">Aylık Gelir</p>
-                    <h3 class="fw-semibold">@Model.MonthlyRevenue.ToString("C")</h3>
+                    <p class="text-muted text-uppercase small mb-1">Aylık Gelir</p>
+                    <h3 class="fw-bold mb-0">@Model.MonthlyRevenue.ToString("C")</h3>
                 </div>
             </div>
         </div>
@@ -66,16 +62,14 @@
     <div class="row g-4 mt-2">
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Son Üyeler</h5>
-                        <a asp-action="Members" class="btn btn-sm btn-outline-secondary">Tümü</a>
-                    </div>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son Üyeler</h5>
+                    <a asp-action="Members" class="btn btn-sm btn-outline-secondary">Tümü</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Ad Soyad</th>
                                     <th>Email</th>
@@ -99,14 +93,14 @@
         </div>
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Son Randevular</h5>
                     <a asp-action="Appointments" class="btn btn-sm btn-outline-secondary">Tümü</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Üye</th>
                                     <th>Antrenör</th>
@@ -121,7 +115,7 @@
                                         <td>@(appointment.Member?.User != null ? $"{appointment.Member.User.FirstName} {appointment.Member.User.LastName}" : appointment.Member != null ? $"{appointment.Member.FirstName} {appointment.Member.LastName}" : "-")</td>
                                         <td>@(appointment.Trainer?.User != null ? $"{appointment.Trainer.User.FirstName} {appointment.Trainer.User.LastName}" : appointment.Trainer != null ? $"{appointment.Trainer.FirstName} {appointment.Trainer.LastName}" : "-")</td>
                                         <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
-                                        <td><span class="badge bg-secondary">@appointment.Status</span></td>
+                                        <td><span class="badge bg-primary">@appointment.Status</span></td>
                                     </tr>
                                 }
                             </tbody>
@@ -133,7 +127,7 @@
     </div>
 
     <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header bg-transparent">
+        <div class="card-header bg-white">
             <h5 class="mb-0">Aylık Randevu Grafiği</h5>
         </div>
         <div class="card-body">
@@ -156,17 +150,15 @@
                 datasets: [{
                     label: 'Randevu Sayısı',
                     data: chartData,
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13,110,253,0.15)',
-                    tension: 0.3,
+                    borderColor: '#FF6B35',
+                    backgroundColor: 'rgba(255,107,53,0.15)',
+                    tension: 0.35,
                     fill: true
                 }]
             },
             options: {
                 plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } }
-                }
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
             }
         });
     </script>

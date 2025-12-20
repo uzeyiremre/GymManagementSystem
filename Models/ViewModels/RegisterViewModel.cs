@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GymManagementSystem.Models.ViewModels
 {
@@ -15,6 +15,13 @@ namespace GymManagementSystem.Models.ViewModels
         [Required(ErrorMessage = "Email zorunludur")]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
+        [Phone]
+        [Display(Name = "Telefon")]
+        public string? PhoneNumber { get; set; }
+
+        [Display(Name = "Üyelik Tipi")]
+        public string? MembershipType { get; set; }
 
         [Required(ErrorMessage = "Şifre zorunludur")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Şifre minimum 6 karakter")]

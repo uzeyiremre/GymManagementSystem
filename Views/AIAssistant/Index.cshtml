@@ -1,53 +1,58 @@
-@model GymManagementSystem.Models.ViewModels.AIAssistantViewModel
+﻿@model GymManagementSystem.Models.ViewModels.AIAssistantViewModel
 @{
-    ViewData["Title"] = "AI Fitness Koçum";
+    ViewData["Title"] = "Fitness Danışmanı";
+}
+
+@section Styles {
+    <style>
+        .coach-header { background: linear-gradient(135deg, #004E89 0%, #1A759F 100%); color: #fff; }
+        .chat-container { height: 60vh; background: #f8f9fa; }
+        .chat-card { height: 85vh; }
+        .preview-img { max-height: 120px; }
+    </style>
 }
 
 <div class="container py-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <div class="card shadow-lg border-0" style="height: 85vh;">
-                <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+            <div class="card shadow-lg border-0 chat-card">
+                <div class="card-header coach-header d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="mb-0">🤖 AI Fitness Koçum</h5>
-                        <small>Kişisel yapay zeka antrenörünüz</small>
+                        <h5 class="mb-0">Sanal Fitness Danışmanı</h5>
+                        <small>Uzman sistem destekli koçluk</small>
                     </div>
                     <form asp-action="ClearHistory" method="post">
                         @Html.AntiForgeryToken()
-                        <button class="btn btn-sm btn-outline-light" type="submit">
-                            🗑️ Geçmişi Temizle
-                        </button>
+                        <button class="btn btn-sm btn-outline-light" type="submit">Geçmişi Temizle</button>
                     </form>
                 </div>
 
-                <div class="card-body overflow-auto" id="chatContainer" style="height: 60vh; background: #f8f9fa;">
+                <div class="card-body overflow-auto chat-container" id="chatContainer">
                     @foreach (var msg in Model.ConversationHistory)
                     {
                         if (msg.Role == "user")
                         {
                             <div class="d-flex justify-content-end mb-3">
-                                <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                                <div class="chat-bubble user">
                                     @msg.Content
-                                    <div class="small mt-1 opacity-75">@msg.CreatedAt.ToString("HH:mm")</div>
+                                    <div class="small mt-1 text-muted">@msg.CreatedAt.ToString("HH:mm")</div>
                                 </div>
                             </div>
                         }
                         else
                         {
                             <div class="d-flex justify-content-start mb-3">
-                                <div class="bg-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
-                                    <strong>🤖 AI Koç:</strong>
+                                <div class="chat-bubble bot">
+                                    <strong>Koç:</strong>
                                     <div class="mt-2">@Html.Raw(msg.Content.Replace("\n", "<br>"))</div>
-                                    <div class="small mt-1 text-muted">@msg.CreatedAt.ToString("HH:mm")</div>
+                                    <div class="small mt-1 text-white-50">@msg.CreatedAt.ToString("HH:mm")</div>
                                 </div>
                             </div>
                         }
                     }
                     <div id="loadingIndicator" class="d-none text-center my-3">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Yükleniyor...</span>
-                        </div>
-                        <div class="mt-2 text-muted">AI düşünüyor...</div>
+                        <div class="spinner-border text-primary" role="status" aria-label="Yükleniyor"></div>
+                        <div class="mt-2 text-muted">Koç düşünüyor...</div>
                     </div>
                 </div>
 
@@ -73,35 +78,23 @@
 
                     <div id="imagePreview" class="d-none mb-2">
                         <div class="position-relative d-inline-block">
-                            <img id="previewImg" src="" class="rounded" style="max-height: 100px;">
-                            <button class="btn btn-sm btn-danger position-absolute top-0 end-0" type="button" onclick="removeImage()">×</button>
+                            <img id="previewImg" src="" class="rounded preview-img">
+                            <button class="btn btn-sm btn-danger position-absolute top-0 end-0" type="button" onclick="removeImage()">Sil</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickInfoForm">
-                            📊 Bilgilerim
-                        </button>
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickInfoForm">Hızlı Bilgilerim</button>
                         <input type="file" id="imageInput" accept="image/*" class="d-none" onchange="handleImageUpload(event)">
-                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('imageInput').click()">
-                            📷 Fotoğraf
-                        </button>
-                        <textarea id="messageInput" class="form-control" placeholder="Mesajınızı yazın..." rows="1" onkeypress="handleKeyPress(event)"></textarea>
-                        <button class="btn btn-primary" type="button" onclick="sendMessage()">
-                            Gönder 🚀
-                        </button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('imageInput').click()">Fotoğraf</button>
+                        <textarea id="messageInput" class="form-control" placeholder="Mesajını yaz..." rows="1" onkeypress="handleKeyPress(event)"></textarea>
+                        <button class="btn btn-primary" type="button" onclick="sendMessage()">Gönder</button>
                     </div>
 
                     <div class="mt-2 d-flex gap-2 flex-wrap">
-                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Vücudumu geliştirmek için nasıl bir program uygulamalıyım?')">
-                            💪 Vücut Geliştirme
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Kas kütlesi kazanmak için beslenme önerisi ver')">
-                            🍽️ Beslenme
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary" type="button" onclick="quickPrompt('Bu hafta için kombin egzersiz planı öner')">
-                            📅 Haftalık Plan
-                        </button>
+                        <button class="quick-prompt" type="button" onclick="quickPrompt('Vücudumu güçlendirmek için nasıl bir program izlemeliyim?')">Güç Programı</button>
+                        <button class="quick-prompt" type="button" onclick="quickPrompt('Kas kütlesi için beslenme önerisi hazırla')">Beslenme</button>
+                        <button class="quick-prompt" type="button" onclick="quickPrompt('Bu hafta için kombin egzersiz planı öner')">Haftalık Plan</button>
                     </div>
                 </div>
             </div>
@@ -173,11 +166,11 @@
             if (result.success) {
                 addMessageToChat('assistant', result.response);
             } else {
-                addMessageToChat('assistant', '❌ ' + result.error);
+                addMessageToChat('assistant', 'Hata: ' + result.error);
             }
         } catch (error) {
             toggleLoading(false);
-            addMessageToChat('assistant', '❌ Bağlantı hatası: ' + error.message);
+            addMessageToChat('assistant', 'Bağlantı hatası: ' + error.message);
         }
     }
 
@@ -189,17 +182,17 @@
         if (role === 'user') {
             messageDiv.className = 'd-flex justify-content-end mb-3';
             messageDiv.innerHTML = `
-                <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
+                <div class="chat-bubble user">
                     ${content}
-                    <div class="small mt-1 opacity-75">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div class="small mt-1 text-muted">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>`;
         } else {
             messageDiv.className = 'd-flex justify-content-start mb-3';
             messageDiv.innerHTML = `
-                <div class="bg-white p-3 rounded-3 shadow-sm" style="max-width: 70%;">
-                    <strong>🤖 AI Koç:</strong>
+                <div class="chat-bubble bot">
+                    <strong>Koç:</strong>
                     <div class="mt-2">${content.replace(/\n/g, '<br>')}</div>
-                    <div class="small mt-1 text-muted">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div class="small mt-1 text-white-50">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>`;
         }
 
@@ -209,11 +202,7 @@
 
     function toggleLoading(show) {
         const loadingIndicator = document.getElementById('loadingIndicator');
-        if (show) {
-            loadingIndicator.classList.remove('d-none');
-        } else {
-            loadingIndicator.classList.add('d-none');
-        }
+        loadingIndicator.classList.toggle('d-none', !show);
         scrollToBottom();
     }
 
@@ -224,9 +213,3 @@
 
     window.addEventListener('load', scrollToBottom);
 </script>
-
-<style>
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-</style>

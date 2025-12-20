@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Erişim Engellendi";
+}
+
+<section class="access-denied-container d-flex align-items-center justify-content-center">
+    <div class="access-denied-card text-center shadow-lg">
+        <div class="access-denied-icon" aria-hidden="true">🚫</div>
+        <h1 class="access-denied-title">Erişim Reddedildi</h1>
+        <p class="access-denied-text">
+            Bu alan için yetkin bulunmuyor. Eğer farklı bir rol erişimi gerekiyorsa, hesabını güncelleyebilir veya yönetici ile iletişime geçebilirsin.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 access-denied-actions">
+            <a class="btn btn-home btn-lg" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+            @if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-logout btn-lg">Çıkış Yap</button>
+                </form>
+            }
+            else
+            {
+                <a class="btn btn-logout btn-lg" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+            }
+        </div>
+    </div>
+</section>

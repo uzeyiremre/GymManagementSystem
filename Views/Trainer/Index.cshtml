@@ -1,47 +1,50 @@
-@model GymManagementSystem.Models.ViewModels.TrainerDashboardViewModel
+﻿@model GymManagementSystem.Models.ViewModels.TrainerDashboardViewModel
 @{
     ViewData["Title"] = "Antrenör Paneli";
 }
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">Merhaba, eğitmen!</h2>
-            <p class="text-muted mb-0">Bugünkü performansınızı ve yaklaşan randevularınızı görüntüleyin.</p>
+    <div class="rounded-4 gradient-orange p-4 shadow-soft mb-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
+            <div>
+                <p class="mb-1 text-uppercase fw-bold">Antrenör Paneli</p>
+                <h2 class="mb-0 fw-bold">Merhaba, eğitmen!</h2>
+                <p class="mb-0">Bugünkü performansını ve yaklaşan randevularını takip et.</p>
+            </div>
+            <a asp-controller="Trainer" asp-action="MyAppointments" class="btn btn-outline-dark">Tüm Randevuları Gör</a>
         </div>
-        <a asp-controller="Trainer" asp-action="MyAppointments" class="btn btn-outline-primary">Tüm Randevuları Gör</a>
     </div>
 
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-blue h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Bugünkü Randevular</p>
-                    <h3 class="fw-semibold">@Model.TodayAppointmentsCount</h3>
+                    <h3 class="fw-bold mb-0">@Model.TodayAppointmentsCount</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-yellow h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Yaklaşan</p>
-                    <h3 class="fw-semibold">@Model.UpcomingAppointmentsCount</h3>
+                    <h3 class="fw-bold mb-0">@Model.UpcomingAppointmentsCount</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-orange h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Aylık Gelir</p>
-                    <h3 class="fw-semibold">@Model.MonthlyRevenue.ToString("C")</h3>
+                    <h3 class="fw-bold mb-0">@Model.MonthlyRevenue.ToString("C")</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-6">
-            <div class="card shadow-sm border-0">
+            <div class="card card-kpi kpi-green h-100">
                 <div class="card-body">
                     <p class="text-muted text-uppercase small mb-1">Aktif Müşteri</p>
-                    <h3 class="fw-semibold">@Model.TotalClients</h3>
+                    <h3 class="fw-bold mb-0">@Model.TotalClients</h3>
                 </div>
             </div>
         </div>
@@ -50,7 +53,7 @@
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent">
+                <div class="card-header bg-white">
                     <h5 class="mb-0">Bugünkü Randevular</h5>
                 </div>
                 <div class="card-body">
@@ -61,8 +64,8 @@
                     else
                     {
                         <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Üye</th>
                                         <th>Servis</th>
@@ -90,7 +93,7 @@
         </div>
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Yaklaşan Randevular</h5>
                     <a asp-action="MyAppointments" class="btn btn-sm btn-outline-secondary">Görüntüle</a>
                 </div>
@@ -102,8 +105,8 @@
                     else
                     {
                         <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Üye</th>
                                         <th>Tarih</th>
@@ -119,7 +122,7 @@
                                         <tr>
                                             <td>@memberName</td>
                                             <td>@appointment.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td><span class="badge bg-info">@appointment.Status</span></td>
+                                            <td><span class="badge bg-primary">@appointment.Status</span></td>
                                         </tr>
                                     }
                                 </tbody>

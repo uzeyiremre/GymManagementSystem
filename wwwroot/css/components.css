@@ -1,0 +1,109 @@
+﻿/* FEATURE CARDS */
+.feature-card {
+    background: linear-gradient(135deg, #004E89 0%, #1A759F 100%);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    color: #e9f4ff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(0,180,216,0.25), transparent 45%);
+    pointer-events: none;
+}
+
+.feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 auto 16px;
+    color: #FFD60A;
+    font-size: 28px;
+}
+
+/* STAT COUNTERS */
+.stat-counter { font-size: 3rem; font-weight: 800; color: #FFD60A; }
+.stat-label { color: #dfe6f0; }
+
+/* BADGES */
+.badge-primary { background: var(--primary-orange); }
+.badge-secondary { background: var(--primary-blue); }
+.badge-success { background: var(--success-green); }
+.badge-cyan { background: var(--accent-cyan); }
+
+/* FORMS */
+.form-control {
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 12px 20px;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 78, 137, 0.15);
+}
+
+.form-floating>label { color: #6c757d; }
+
+/* AUTH */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    background: var(--light-gray);
+}
+
+.auth-left, .auth-right { padding: 48px; }
+
+.auth-left {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.auth-left.blue {
+    background: linear-gradient(135deg, #004E89 0%, #00B4D8 100%);
+}
+
+.auth-form-card {
+    max-width: 520px;
+    margin: auto;
+}
+
+/* CHAT */
+.chat-bubble {
+    padding: 14px 18px;
+    border-radius: 18px;
+    max-width: 85%;
+}
+
+.chat-bubble.bot { background: linear-gradient(135deg, #004E89, #1A759F); color: #fff; }
+.chat-bubble.user { background: #f1f3f5; color: #1a1a1a; }
+
+.quick-prompt {
+    background: rgba(0,78,137,0.08);
+    color: #004E89;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.quick-prompt:hover { background: rgba(0,78,137,0.14); }

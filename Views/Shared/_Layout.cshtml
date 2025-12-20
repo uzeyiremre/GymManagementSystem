@@ -3,92 +3,89 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - GymManagementSystem</title>
+    <title>@ViewData["Title"] - GymPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-3hYp8KX2HFqRSbVSSMzdg3NofM8JrIoYNewc19hXtOD87mpy4V/mQJu1nvLKYj1WFJsbgx5caX5/C/PObbIVdQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/GymManagementSystem.styles.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     @{
         var fullWidthLayout = (ViewData["FullWidthLayout"] as bool?) ?? false;
     }
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GymManagementSystem</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <header class="sticky-top bg-white shadow-sm sticky-shadow">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container-xxl">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-dumbbell text-primary"></i>
+                    <span class="text-primary">Gym</span><span class="text-warning">Pro</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Menüyü aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        @if (User?.IsInRole("Admin") ?? false)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Admin Panel</a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Members">Üyeler</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Trainers">Antrenörler</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Appointments">Randevular</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">Raporlar</a></li>
-                                </ul>
-                            </li>
-                        }
-                        @if (User?.IsInRole("Trainer") ?? false)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Antrenör Paneli</a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index">Dashboard</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="MyAppointments">Randevularım</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Availability">Müsaitlik</a></li>
-                                </ul>
-                            </li>
-                        }
-                        @if (User?.IsInRole("Member") ?? false)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Randevularım</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Member" asp-action="Profile">Profilim</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="AIAssistant" asp-action="Index">🤖 AI Yardımcım</a>
-                            </li>
-                        }
-                    </ul>
 
-                    <ul class="navbar-nav ms-auto">
-                        @if (User?.Identity?.IsAuthenticated ?? false)
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-home me-1"></i>Ana Sayfa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Trainer" asp-action="Index"><i class="fas fa-users me-1"></i>Antrenörler</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#paketler"><i class="fas fa-box me-1"></i>Paketler</a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
                         {
                             <li class="nav-item">
-                                <span class="nav-link">Hoş geldiniz, @User.Identity.Name</span>
+                                <a class="nav-link text-primary fw-semibold" asp-controller="AIAssistant" asp-action="Index"><i class="fas fa-robot me-1"></i>Fitness Danışmanı</a>
                             </li>
-                            <li class="nav-item">
-                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Çıkış</button>
-                                </form>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link" href="#iletisim"><i class="fas fa-envelope me-1"></i>İletişim</a>
+                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-user-circle me-1"></i>Hesabım</a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index"><i class="fas fa-tachometer-alt me-2"></i>Admin Panel</a></li>
+                                    }
+                                    @if (User.IsInRole("Trainer"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index"><i class="fas fa-dumbbell me-2"></i>Antrenör Panel</a></li>
+                                    }
+                                    @if (User.IsInRole("Member"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="Appointment" asp-action="Index"><i class="fas fa-calendar-check me-2"></i>Randevularım</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Member" asp-action="Profile"><i class="fas fa-user me-2"></i>Profilim</a></li>
+                                        <li><a class="dropdown-item" asp-controller="AIAssistant" asp-action="Index"><i class="fas fa-robot me-2"></i>Fitness Danışmanı</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Giriş</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Kayıt</a>
+                            <li class="nav-item ms-2">
+                                <a class="btn btn-primary btn-sm rounded-pill px-4" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
                             </li>
                         }
                     </ul>
@@ -96,50 +93,78 @@
             </div>
         </nav>
     </header>
-    <div class="@(fullWidthLayout ? "container-fluid p-0" : "container")">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main class="flex-grow-1">
+        <div class="@(fullWidthLayout ? "container-fluid p-0" : "container mt-4")">
+            <div role="main" class="pb-3">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-dark mt-auto py-5" id="iletisim">
         <div class="container">
-            &copy; 2025 - GymManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-dumbbell text-warning"></i>
+                        <span class="fw-bold fs-5 text-white">GymPro</span>
+                    </div>
+                    <p>GymPro, enerjik ve profesyonel fitness deneyimini tek platformda sunar. Antrenörler, paketler ve randevular tek panelde.</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white mb-3">Hızlı Linkler</h6>
+                    <ul class="list-unstyled d-grid gap-2">
+                        <li><a href="/Home/Index">Ana Sayfa</a></li>
+                        <li><a href="#paketler">Paketler</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Gizlilik</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white mb-3">İletişim</h6>
+                    <ul class="list-unstyled d-grid gap-2">
+                        <li><i class="fa-solid fa-phone me-2 text-warning"></i>+90 555 555 55 55</li>
+                        <li><i class="fa-solid fa-envelope me-2 text-warning"></i>info@gympro.com</li>
+                        <li class="d-flex gap-3 mt-2">
+                            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram text-warning fs-5"></i></a>
+                            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook text-warning fs-5"></i></a>
+                            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter text-warning fs-5"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center mt-4 small">&copy; 2025 - GymPro. Tüm hakları saklıdır.</div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-            <div class="toast show">
+    <div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="toast show mb-2" role="alert">
                 <div class="toast-header bg-success text-white">
                     <strong class="me-auto">Başarılı</strong>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
                 </div>
-                <div class="toast-body">
-                    @TempData["SuccessMessage"]
-                </div>
+                <div class="toast-body">@TempData["SuccessMessage"]</div>
             </div>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-            <div class="toast show">
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="toast show" role="alert">
                 <div class="toast-header bg-danger text-white">
                     <strong class="me-auto">Hata</strong>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
                 </div>
-                <div class="toast-body">
-                    @TempData["ErrorMessage"]
-                </div>
+                <div class="toast-body">@TempData["ErrorMessage"]</div>
             </div>
-        </div>
-    }
+        }
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script> AOS.init({ duration: 800, once: true }); </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

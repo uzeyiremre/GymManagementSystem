@@ -1,0 +1,84 @@
+.hero-section {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 0;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/dot-grid.png');
+    opacity: 0.15;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+}
+
+.hero-badge {
+    background: rgba(255, 214, 10, 0.15);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-badge {
+    background: rgba(0, 78, 137, 0.18);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.hero-cta .btn { min-width: 160px; }
+
+.hero-illustration {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    width: 100%;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.18));
+    margin-left: auto;
+}
+
+.features-grid { margin-top: -40px; }
+
+.stats-section { background: var(--dark-navy); color: #fff; }
+
+.stats-section .stat-card { box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+
+.cta-banner {
+    background: linear-gradient(135deg, #FFD60A 0%, #FFC300 100%);
+    border-radius: 20px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+.cta-banner .cta-title { font-size: 2rem; font-weight: 800; color: #1A1A2E; }
+
+.stats-animated { transition: transform 0.4s ease; }
+.stats-animated:hover { transform: translateY(-6px); }
+
+.hero-subtitle { max-width: 620px; color: #f7f7f7; }
+
+@media (max-width: 992px) {
+    .hero-section { padding: 80px 0; }
+    .hero-illustration { max-width: 520px; margin: 0 auto; }
+    .hero-content { max-width: 100%; }
+}

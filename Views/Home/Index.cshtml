@@ -8,289 +8,132 @@
     var completedAppointments = Model?.CompletedAppointments ?? 0;
 }
 
-@section Styles {
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#667eea",
-                        "secondary": "#4ecdc4",
-                        "accent": "#ffe66d",
-                        "background-light": "#f6f6f8",
-                        "text-light": "#111217",
-                        "text-muted-light": "#646a87",
-                        "border-light": "#dcdde5"
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.5rem",
-                        "lg": "0.75rem",
-                        "xl": "1rem",
-                        "full": "9999px"
-                    },
-                    fontFamily: {
-                        "display": ["Inter", "sans-serif"]
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
-        }
-
-        .text-gradient {
-            background: linear-gradient(to right, #667eea, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
-}
-
-@{
-    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
-    var isAdmin = User?.IsInRole("Admin") ?? false;
-    var isTrainer = User?.IsInRole("Trainer") ?? false;
-    var isMember = User?.IsInRole("Member") ?? false;
-    var ctaController = isAdmin ? "Admin" : isTrainer ? "Trainer" : "Member";
-    var ctaAction = (isAdmin || isTrainer) ? "Index" : "Profile";
-    var ctaText = isAdmin ? "Admin Paneline Git" : isTrainer ? "Antrenör Paneline Git" : "Profilime Git";
-    var ctaDescription = isAdmin
-        ? "Üyeleri, antrenörleri ve randevuları buradan yönetin."
-        : isTrainer
-            ? "Günlük programını ve seanslarını buradan yönet."
-            : "Profilini güncelle, randevularını ve planını takip et.";
-}
-
-<div class="bg-[#f6f6f8]">
-    <div class="mx-auto w-full" style="font-family: 'Inter', sans-serif;">
-        @if (isAuthenticated)
-        {
-            <section class="py-5">
-                <div class="px-3 px-md-5">
-                    <div class="bg-white rounded-3xl shadow-sm border border-border-light p-6 md:p-10">
-                        <div class="flex flex-col lg:flex-row justify-between gap-6">
-                            <div>
-                                <p class="text-sm text-text-muted-light">Hoş geldiniz</p>
-                                <h1 class="text-3xl md:text-4xl font-black">@User.Identity?.Name</h1>
-                                <p class="text-text-muted-light mt-3">
-                                    @(isAdmin ? "Admin panelinizden üyeleri, antrenörleri ve randevuları yönetin."
-                                        : isTrainer ? "Bugünkü seanslarınızı kontrol edin, yeni randevularınızı yönetin."
-                                        : "Randevularınızı planlayın, AI koçu ile sohbet edin ve profilinizi güncelleyin.")
-                                </p>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 flex-1">
-                                <a asp-controller="Admin" asp-action="Index" class="@(isAdmin ? "" : "pointer-events-none opacity-60") rounded-2xl border border-border-light p-4 flex flex-col gap-2 hover:-translate-y-1 transition-transform">
-                                    <span class="text-sm text-text-muted-light">Admin Paneli</span>
-                                    <span class="text-xl font-bold">Kontrol Merkezi</span>
-                                    <span class="text-sm text-primary">@(isAdmin ? "Detayları görüntüle" : "Yalnızca admin")</span>
-                                </a>
-                                <a asp-controller="Trainer" asp-action="Index" class="@(isTrainer ? "" : "pointer-events-none opacity-60") rounded-2xl border border-border-light p-4 flex flex-col gap-2 hover:-translate-y-1 transition-transform">
-                                    <span class="text-sm text-text-muted-light">Antrenör Paneli</span>
-                                    <span class="text-xl font-bold">Günlük Program</span>
-                                    <span class="text-sm text-primary">@(isTrainer ? "Randevuları görüntüle" : "Yalnızca antrenör")</span>
-                                </a>
-                                <a asp-controller="Appointment" asp-action="Index" class="rounded-2xl border border-border-light p-4 flex flex-col gap-2 hover:-translate-y-1 transition-transform">
-                                    <span class="text-sm text-text-muted-light">Üye İşlemleri</span>
-                                    <span class="text-xl font-bold">Randevularım</span>
-                                    <span class="text-sm text-primary">Tüm kullanıcılar için</span>
-                                </a>
-                            </div>
+<section class="hero-section">
+    <div class="container-fluid px-0">
+        <div class="container-xxl px-4">
+            <div class="row align-items-center min-vh-100 g-5 justify-content-between">
+                <div class="col-xl-6 col-lg-7 hero-content" data-aos="fade-right">
+                    <div class="hero-badge mb-3"><i class="fa-solid fa-bolt"></i> Enerjik Fitness Deneyimi</div>
+                    <h1 class="hero-title text-white mb-4">GymPro'ya Hoş<br><span class="text-gradient">Geldiniz!</span></h1>
+                    <p class="hero-subtitle text-white mb-5">Güçlü antrenman programları, profesyonel antrenörler ve dinamik toplulukla hedeflerinize ulaş. Enerjini ortaya çıkar!</p>
+                    <div class="d-flex flex-wrap gap-3 mb-4 hero-cta">
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary gradient-yellow text-dark">Ücretsiz Dene</a>
+                        <a href="#neden" class="btn btn-outline-light">Keşfet</a>
+                    </div>
+                    <div class="d-flex gap-4 flex-wrap mb-4">
+                        <div class="stat-badge bg-white bg-opacity-25 rounded-pill px-4 py-3">
+                            <i class="fas fa-users text-white me-2"></i>
+                            <span class="fw-bold text-white fs-4">@totalMembers.ToString("N0") Üye</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                            <div class="rounded-2xl border border-border-light p-4 bg-[#f9f9fb]">
-                                <p class="text-text-muted-light text-sm">Toplam Üye</p>
-                                <p class="text-3xl font-bold">@totalMembers.ToString("N0")</p>
-                            </div>
-                            <div class="rounded-2xl border border-border-light p-4 bg-[#f9f9fb]">
-                                <p class="text-text-muted-light text-sm">Aktif Antrenör</p>
-                                <p class="text-3xl font-bold">@activeTrainers.ToString("N0")</p>
-                            </div>
-                            <div class="rounded-2xl border border-border-light p-4 bg-[#f9f9fb]">
-                                <p class="text-text-muted-light text-sm">Tamamlanan Seans</p>
-                                <p class="text-3xl font-bold">@completedAppointments.ToString("N0")</p>
-                            </div>
+                        <div class="stat-badge bg-white bg-opacity-25 rounded-pill px-4 py-3">
+                            <i class="fas fa-dumbbell text-white me-2"></i>
+                            <span class="fw-bold text-white fs-4">@activeTrainers.ToString("N0") Antrenör</span>
+                        </div>
+                        <div class="stat-badge bg-white bg-opacity-25 rounded-pill px-4 py-3">
+                            <i class="fas fa-check-circle text-white me-2"></i>
+                            <span class="fw-bold text-white fs-4">@completedAppointments.ToString("N0") Seans</span>
                         </div>
                     </div>
                 </div>
-            </section>
-        }
-        else
-        {
-            <section class="py-5 py-md-5 py-lg-5">
-                <div class="px-3 px-md-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-5">
-                        <div class="flex flex-col gap-8">
-                            <div class="flex flex-col gap-4 text-left">
-                                <h1 class="text-gradient text-5xl md:text-6xl lg:text-7xl font-black leading-tight">Spor Salonumuza Hoş Geldiniz!</h1>
-                                <p class="text-base md:text-lg text-text-muted-light">
-                                    Profesyonel antrenörlerimiz ve kişiye özel programlarımızla Sakarya'daki yüzlerce üyenin form yolculuğunu destekliyoruz. Teknolojiyle güçlendirilmiş koçlukla hedeflerinize ulaşın.
-                                </p>
-                            </div>
-                            <div class="flex flex-wrap gap-4">
-                                <a asp-controller="Account" asp-action="Register" class="flex min-w-[150px] items-center justify-center rounded-lg h-12 px-6 bg-primary text-white text-base font-bold hover:bg-opacity-90">
-                                    Hemen Başla
-                                </a>
-                                <a asp-controller="Account" asp-action="Login" class="flex min-w-[150px] items-center justify-center rounded-lg h-12 px-6 border-2 border-primary text-primary text-base font-bold hover:bg-primary/10">
-                                    Programları İncele
-                                </a>
-                            </div>
-                            <div class="flex flex-wrap gap-4 pt-4">
-                                <div class="flex min-w-[158px] flex-1 flex-col gap-1 rounded-lg p-4 border border-border-light bg-white">
-                                    <p class="text-text-muted-light text-sm font-medium">Aktif Üyeler</p>
-                                    <p class="text-2xl font-bold">@totalMembers.ToString("N0")+</p>
-                                </div>
-                                <div class="flex min-w-[158px] flex-1 flex-col gap-1 rounded-lg p-4 border border-border-light bg-white">
-                                    <p class="text-text-muted-light text-sm font-medium">Sertifikalı Antrenör</p>
-                                    <p class="text-2xl font-bold">@activeTrainers.ToString("N0")+</p>
-                                </div>
-                                <div class="flex min-w-[158px] flex-1 flex-col gap-1 rounded-lg p-4 border border-border-light bg-white">
-                                    <p class="text-text-muted-light text-sm font-medium">Tamamlanan Seans</p>
-                                    <p class="text-2xl font-bold">@completedAppointments.ToString("N0")+</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="w-full flex items-center justify-center">
-                            <img class="max-h-[500px] object-contain" alt="Sporcu illüstrasyonu" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYZQDBl7sllPVUsQi3fncxGkSdLfX-yo0kOZ9j70Bl8hZ2v-uaTSgOWhjbFCgIzh3fXtXNf5iJ68F6lGz7k7YH7qKclfL3zRfb-09DxTUC6Nn3gw6nvKb_ctjRculufMUOWDV3IQpggxFd6H8ldxqN9QJkVxVv8pGEZYqfySvnJyVNruT6UJt7Pr6Qe3_vDq_gm7TdZOlqfxdmVThYvD9NTkR1gYAqWBPFpqjmSuRA_38kaka8KOUjxclRXeblK438-pPzlgZZDOIS" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-        }
-
-        <section id="ozellikler" class="py-5">
-            <div class="px-3 px-md-5">
-                <div class="flex flex-col gap-4 text-center items-center">
-                    <h2 class="text-4xl md:text-5xl font-black">Neden GymPro?</h2>
-                    <p class="text-text-muted-light max-w-3xl text-base md:text-lg">
-                        Uzman koçluk, yapay zeka destekli programlama ve destekleyici topluluk deneyimini tek çatı altında sunuyoruz.
-                    </p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-                    <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-white p-6 text-center items-center shadow-sm">
-                        <div class="flex items-center justify-center size-16 rounded-full bg-primary/10 text-primary">
-                            <span class="material-symbols-outlined text-4xl">fitness_center</span>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <h3 class="text-lg font-bold">Profesyonel Antrenörler</h3>
-                            <p class="text-text-muted-light text-sm">Federasyon onaylı 32 kişilik uzman ekibimizle bire bir destek.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-white p-6 text-center items-center shadow-sm">
-                        <div class="flex items-center justify-center size-16 rounded-full bg-secondary/10 text-secondary">
-                            <span class="material-symbols-outlined text-4xl">calendar_month</span>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <h3 class="text-lg font-bold">Kolay Randevu</h3>
-                            <p class="text-text-muted-light text-sm">Tüm dersleri çevrim içi planla, antrenörüne birkaç tıkla ulaş.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-white p-6 text-center items-center shadow-sm">
-                        <div class="flex items-center justify-center size-16 rounded-full bg-primary/10 text-primary">
-                            <span class="material-symbols-outlined text-4xl">smart_toy</span>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <h3 class="text-lg font-bold">Yapay Zeka Koçu</h3>
-                            <p class="text-text-muted-light text-sm">AI Fitness Koçum ile fotoğraf analizi ve kişisel program önerileri.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-4 rounded-xl border border-border-light bg-white p-6 text-center items-center shadow-sm">
-                        <div class="flex items-center justify-center size-16 rounded-full bg-accent/20 text-yellow-500">
-                            <span class="material-symbols-outlined text-4xl">emoji_events</span>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <h3 class="text-lg font-bold">İlerleme Takibi</h3>
-                            <p class="text-text-muted-light text-sm">Vücut ölçüleri, antrenman ve beslenme raporları tek panelde.</p>
-                        </div>
-                    </div>
+                <div class="col-xl-5 col-lg-5 text-center" data-aos="fade-left">
+                    <img src="https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=900&q=80" alt="Atletik silüet" class="hero-illustration img-fluid rounded-4">
                 </div>
             </div>
-        </section>
-
-        <section class="py-5">
-            <div class="px-3 px-md-5">
-                <div class="rounded-xl bg-gradient-to-r from-primary to-secondary p-8 md:p-12">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center text-white">
-                        <div class="flex flex-col gap-4">
-                            <h2 class="text-4xl md:text-5xl font-black leading-tight">
-                                @(isAuthenticated ? "Hazırsan devam edelim!" : "Takımımıza Katıl!")
-                            </h2>
-                            <p class="text-base md:text-lg text-white/80">
-                                @(isAuthenticated ? ctaDescription : "Yeni bir programa başla, hedeflerine uyan planı bul ve topluluğumuza katıl.")
-                            </p>
-                            <ul class="flex flex-col gap-3 text-base md:text-lg">
-                                <li class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-accent">check_circle</span>
-                                    <span>7/24 açık, kardiyo & ağırlık stüdyoları</span>
-                                </li>
-                                <li class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-accent">check_circle</span>
-                                    <span>Fonksiyonel, HIIT ve yoga dersleri</span>
-                                </li>
-                                <li class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-accent">check_circle</span>
-                                    <span>Beslenme ve ölçüm danışmanlığı</span>
-                                </li>
-                            </ul>
-                            @if (isAuthenticated)
-                            {
-                                <a asp-controller="@ctaController" asp-action="@ctaAction" class="flex min-w-[200px] items-center justify-center rounded-lg h-14 px-8 bg-accent text-text-light text-lg font-bold hover:bg-opacity-90 shadow-lg">
-                                    @ctaText
-                                </a>
-                            }
-                            else
-                            {
-                                <div class="flex flex-wrap gap-4">
-                                    <a asp-controller="Account" asp-action="Register" class="flex min-w-[160px] items-center justify-center rounded-lg h-14 px-8 bg-accent text-text-light text-lg font-bold hover:bg-opacity-90 shadow-lg">
-                                        Üye Ol
-                                    </a>
-                                    <a asp-controller="Account" asp-action="Login" class="flex min-w-[160px] items-center justify-center rounded-lg h-14 px-8 border-2 border-white text-white text-lg font-bold hover:bg-white/10">
-                                        Giriş Yap
-                                    </a>
-                                </div>
-                            }
-                        </div>
-                        <div class="w-full flex items-center justify-center">
-                            <img alt="Sporcu ekibi" class="max-h-[350px] object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh1y7lysDuQbE9NwB8W_4K0vIxuXeLDU_6WO6ek-KmRsaI2N-Md1x4qWJUos50gSc81xrSy8l9r5yCpvOnEL4Mgh6bkfq9laiytJ5SI98hH36iksRRUaEbVCCbo0dhyVLzS5TflvY5WDPrD4mDIlh7CkyKDm3ZNNotV6xz-Xfyg40k0d0rnsz6RWOuN8yV2lX9nudnQ6wa28Vlk4nCr-9d1PcnzFnBuHzao_Xm9IGOQ0XtJF65fZdZDaz1ic5qEktsdymNX3vPqAy5" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        @if (Model?.FeaturedTrainers?.Any() == true)
-        {
-            <section class="py-5">
-                <div class="px-3 px-md-5">
-                    <div class="flex flex-col gap-6 text-center">
-                        <h2 class="text-4xl font-black">Öne Çıkan Antrenörler</h2>
-                        <p class="text-text-muted-light max-w-3xl mx-auto">
-                            Deneyimli eğitmen kadromuzdan bazılarıyla tanışın.
-                        </p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @foreach (var trainer in Model.FeaturedTrainers)
-                            {
-                                var trainerImage = string.IsNullOrWhiteSpace(trainer.ImageUrl)
-                                    ? Url.Content("~/img/trainer-placeholder.svg")
-                                    : trainer.ImageUrl;
-                                <div class="rounded-2xl border border-border-light bg-white p-6 shadow-sm text-center flex flex-col items-center gap-3">
-                                    <img src="@trainerImage" alt="Antrenör" class="w-24 h-24 rounded-full object-cover" />
-                                    <h3 class="text-xl font-semibold">
-                                        @(trainer.User != null ? $"{trainer.User.FirstName} {trainer.User.LastName}" : $"{trainer.FirstName} {trainer.LastName}")
-                                    </h3>
-                                    <p class="text-primary font-medium">@trainer.Specialization</p>
-                                    <p class="text-sm text-text-muted-light">@trainer.ExperienceYears yıl deneyim</p>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </section>
-        }
+        </div>
     </div>
-</div>
+</section>
+
+<section id="neden" class="section-spacing features-section">
+    <div class="container-fluid px-0">
+        <div class="container-xxl">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="fw-bold display-6">Neden GymPro?</h2>
+                <p class="text-muted lead">Uzman koçluk, enerji dolu programlar ve destekleyici toplulukla yeni seviyene yüksel.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="50">
+                    <div class="feature-card card border-0 shadow-lg h-100">
+                        <div class="feature-icon mx-auto mb-4"><i class="fa-solid fa-dumbbell"></i></div>
+                        <h4 class="fw-bold mb-3">Güçlü Programlar</h4>
+                        <p class="text-muted mb-0">Performans odaklı, bilimsel olarak planlanmış antrenmanlarla hedefine kilitlen.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card card border-0 shadow-lg h-100">
+                        <div class="feature-icon mx-auto mb-4"><i class="fa-solid fa-calendar-check"></i></div>
+                        <h4 class="fw-bold mb-3">Kolay Randevu</h4>
+                        <p class="text-muted mb-0">Programını seç, antrenörünü ayarla ve birkaç tıkla seansını oluştur.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="150">
+                    <div class="feature-card card border-0 shadow-lg h-100">
+                        <div class="feature-icon mx-auto mb-4"><i class="fa-solid fa-chart-line"></i></div>
+                        <h4 class="fw-bold mb-3">İlerleme Takibi</h4>
+                        <p class="text-muted mb-0">Vücut ölçüleri, performans grafikleri ve raporlarla gelişimini izle.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card card border-0 shadow-lg h-100">
+                        <div class="feature-icon mx-auto mb-4"><i class="fa-solid fa-users-gear"></i></div>
+                        <h4 class="fw-bold mb-3">Topluluk & Koçluk</h4>
+                        <p class="text-muted mb-0">Motivasyon dolu topluluk ve alanında uzman koçlarla yan yana çalış.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section py-5 bg-dark-navy">
+    <div class="container-fluid px-0">
+        <div class="container-xxl">
+            <div class="row g-5 text-center">
+                <div class="col-lg-3 col-6" data-aos="zoom-in">
+                    <div class="stat-box p-4">
+                        <h2 class="stat-number text-warning mb-3">@totalMembers.ToString("N0")</h2>
+                        <p class="stat-label text-white-50 mb-0">TOPLAM ÜYE</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6" data-aos="zoom-in" data-aos-delay="80">
+                    <div class="stat-box p-4">
+                        <h2 class="stat-number text-info mb-3">@activeTrainers.ToString("N0")</h2>
+                        <p class="stat-label text-white-50 mb-0">AKTİF ANTRENÖR</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6" data-aos="zoom-in" data-aos-delay="140">
+                    <div class="stat-box p-4">
+                        <h2 class="stat-number text-primary mb-3">@completedAppointments.ToString("N0")</h2>
+                        <p class="stat-label text-white-50 mb-0">TAMAMLANAN SEANS</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="stat-box p-4">
+                        <h2 class="stat-number text-warning mb-3">4.9</h2>
+                        <p class="stat-label text-white-50 mb-0">MEMNUNİYET</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-spacing" id="paketler">
+    <div class="container-fluid px-0">
+        <div class="container-xxl">
+            <div class="cta-banner" data-aos="fade-up">
+                <div>
+                    <div class="text-uppercase fw-bold text-dark mb-2">GymPro Challenge</div>
+                    <div class="cta-title mb-2">Hazır mısın?</div>
+                    <p class="mb-3">Enerjik ortam, uzman koçluk ve kişiye özel planlarla bugünden başla. Hedefine giden ilk adımı şimdi at.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary">Şimdi Başla</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-secondary">Üye Girişi</a>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=520&q=80" alt="Fitness ekipman" class="img-fluid rounded-4 shadow-soft">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

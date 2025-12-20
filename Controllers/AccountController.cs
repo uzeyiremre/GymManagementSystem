@@ -67,7 +67,21 @@ namespace GymManagementSystem.Controllers
 
                     if (result.Succeeded)
                     {
-                        return LocalRedirect(returnUrl ?? "/Home/Index");
+                        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        {
+                            return LocalRedirect(returnUrl);
+                        }
+
+                        var roles = await _userManager.GetRolesAsync(user);
+
+                        if (roles.Contains("Admin"))
+                            return RedirectToAction("Dashboard", "Admin");
+                        if (roles.Contains("Trainer"))
+                            return RedirectToAction("Dashboard", "Trainer");
+                        if (roles.Contains("Member"))
+                            return RedirectToAction("Profile", "Member");
+
+                        return RedirectToAction("AccessDenied", "Account");
                     }
 
                     if (result.IsLockedOut)
@@ -104,6 +118,7 @@ namespace GymManagementSystem.Controllers
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
+                    PhoneNumber = model.PhoneNumber,
                     EmailConfirmed = true
                 };
 
@@ -121,6 +136,7 @@ namespace GymManagementSystem.Controllers
                             FirstName = user.FirstName,
                             LastName = user.LastName,
                             Email = user.Email ?? user.UserName ?? string.Empty,
+                            Phone = model.PhoneNumber,
                             MembershipDate = DateTime.Now,
                             RegisteredAt = DateTime.Now,
                             IsActive = true
@@ -142,6 +158,13 @@ namespace GymManagementSystem.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied(string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
         }
 
         [HttpPost]

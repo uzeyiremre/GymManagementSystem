@@ -1,83 +1,117 @@
-@model GymManagementSystem.Models.ViewModels.RegisterViewModel
+﻿@model GymManagementSystem.Models.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Kayıt Ol";
+    Layout = null;
 }
-
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <div class="text-center mb-4">
-            <h2>Yeni Hesap Oluştur</h2>
-            <p class="text-muted">Randevularını kolayca yönetmek için aramıza katıl.</p>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GymPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+</head>
+<body class="auth-wrapper">
+    <div class="row flex-grow-1 w-100 m-0">
+        <div class="col-lg-5 d-none d-lg-flex flex-column auth-left blue justify-content-center align-items-center text-center">
+            <div class="auth-split-left">
+                <div class="mb-3"><i class="fa-solid fa-heart-pulse fa-2x"></i></div>
+                <h2 class="fw-bold display-5">“Yeni hedef, yeni sen.”</h2>
+                <p class="auth-quote">Güçlü bir başlangıç için enerjik programlar, uzman koçlar ve destekleyici topluluk seninle.</p>
+                <img src="https://images.unsplash.com/photo-1546483875-ad9014c88eba?auto=format&fit=crop&w=700&q=80" alt="Antrenman" class="img-fluid rounded-4 shadow mt-4">
+            </div>
         </div>
+        <div class="col-lg-7 d-flex align-items-center justify-content-center bg-white">
+            <div class="auth-form-card glass-card p-5 w-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-dark fw-bold fs-4">Gym<strong>Pro</strong></a>
+                    <div class="text-muted">Adım 1/2</div>
+                </div>
+                <h3 class="fw-bold mb-2">Hesap Oluştur</h3>
+                <p class="text-muted mb-4">Bilgilerini gir, kişisel fitness alanına hemen eriş.</p>
 
-        <form asp-action="Register" method="post" id="registerForm">
-            @Html.AntiForgeryToken()
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="FirstName" class="form-label">Ad</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                        <input asp-for="FirstName" class="form-control" placeholder="Adınız" />
+                <form asp-action="Register" method="post" class="row g-3" id="registerForm">
+                    @Html.AntiForgeryToken()
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="FirstName" class="form-control" placeholder="Ad" />
+                            <label asp-for="FirstName">Ad</label>
+                        </div>
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="FirstName" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="LastName" class="form-label">Soyad</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                        <input asp-for="LastName" class="form-control" placeholder="Soyadınız" />
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="LastName" class="form-control" placeholder="Soyad" />
+                            <label asp-for="LastName">Soyad</label>
+                        </div>
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="LastName" class="text-danger small"></span>
-                </div>
-                <div class="col-12">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                        <input asp-for="Email" class="form-control" placeholder="ornek@ogr.sakarya.edu.tr" />
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Email" class="form-control" placeholder="Email" type="email" />
+                            <label asp-for="Email">Email</label>
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="Email" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="Password" class="form-label">Şifre</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                        <input asp-for="Password" type="password" class="form-control" placeholder="En az 6 karakter" />
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Telefon" />
+                            <label asp-for="PhoneNumber">Telefon</label>
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="Password" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Tekrar şifreniz" />
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Şifre" />
+                            <label asp-for="Password">Şifre</label>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Şifre Tekrar" />
+                            <label asp-for="ConfirmPassword">Şifre Tekrar</label>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="MembershipType" name="MembershipType" aria-label="Üyelik Tipi">
+                                <option value="Aylık">Aylık</option>
+                                <option value="Yıllık">Yıllık</option>
+                            </select>
+                            <label for="MembershipType">Üyelik Tipi</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="privacy" required />
+                            <label class="form-check-label" for="privacy">Gizlilik politikasını okudum ve kabul ediyorum.</label>
+                        </div>
+                    </div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                    <div class="col-12">
+                        <button type="submit" class="btn gradient-yellow w-100 fw-bold py-3 border-0">Hesap Oluştur</button>
+                    </div>
+                    <div class="col-12 text-center">
+                        <p class="text-muted mb-0">Zaten hesabın var mı? <a asp-action="Login" class="text-orange fw-bold">Giriş Yap</a></p>
+                    </div>
+                </form>
             </div>
-
-            <div asp-validation-summary="ModelOnly" class="text-danger small my-3"></div>
-
-            <button type="submit" class="btn btn-success w-100" id="registerSubmit">
-                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
-                Kayıt Ol
-            </button>
-
-            <div class="text-center mt-3">
-                <p>Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a></p>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-@section Scripts {
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const registerForm = document.getElementById('registerForm');
-        const registerSubmit = document.getElementById('registerSubmit');
-        const registerSpinner = registerSubmit.querySelector('.spinner-border');
-        registerForm.addEventListener('submit', () => {
-            registerSpinner.classList.remove('d-none');
-            registerSubmit.setAttribute('disabled', 'disabled');
+        const form = document.getElementById('registerForm');
+        form?.addEventListener('submit', () => {
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn) { btn.setAttribute('disabled', 'disabled'); btn.classList.add('opacity-75'); }
         });
     </script>
-}
+</body>
+</html>
