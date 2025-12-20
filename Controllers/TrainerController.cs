@@ -9,7 +9,7 @@ using GymManagementSystem.Models.ViewModels;
 
 namespace GymManagementSystem.Controllers
 {
-    [Authorize(Roles = "Trainer")]
+    [Authorize(Roles = "Admin,Trainer")]
     public class TrainerController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -33,39 +33,38 @@ namespace GymManagementSystem.Controllers
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(t => t.UserId == user.Id);
 
-            if (trainer == null)
-            {
-                TempData["ErrorMessage"] = "Antrenör kaydı bulunamadı.";
-                return RedirectToAction("Index", "Home");
-            }
-
             var today = DateTime.Today;
-            var upcomingQuery = _context.Appointments
-                .Where(a => a.TrainerId == trainer.TrainerId && a.AppointmentDate > DateTime.Now)
+
+            // If admin has no trainer record, show aggregated overview instead of blocking access.
+            var appointmentsQuery = _context.Appointments
                 .Include(a => a.Member)!.ThenInclude(m => m!.User)
                 .Include(a => a.Service)
+                .AsQueryable();
+
+            if (trainer != null)
+            {
+                appointmentsQuery = appointmentsQuery.Where(a => a.TrainerId == trainer.TrainerId);
+            }
+
+            var upcomingQuery = appointmentsQuery
+                .Where(a => a.AppointmentDate > DateTime.Now)
                 .OrderBy(a => a.AppointmentDate);
 
             var viewModel = new TrainerDashboardViewModel
             {
-                TodayAppointmentsCount = await _context.Appointments.CountAsync(a =>
-                    a.TrainerId == trainer.TrainerId && a.AppointmentDate.Date == today),
-                TodayAppointments = await _context.Appointments
-                    .Where(a => a.TrainerId == trainer.TrainerId && a.AppointmentDate.Date == today)
-                    .Include(a => a.Member)!.ThenInclude(m => m!.User)
-                    .Include(a => a.Service)
+                TodayAppointmentsCount = await appointmentsQuery.CountAsync(a => a.AppointmentDate.Date == today),
+                TodayAppointments = await appointmentsQuery
+                    .Where(a => a.AppointmentDate.Date == today)
                     .OrderBy(a => a.AppointmentDate)
                     .ToListAsync(),
                 UpcomingAppointmentsCount = await upcomingQuery.CountAsync(),
                 UpcomingAppointments = await upcomingQuery.Take(5).ToListAsync(),
-                MonthlyRevenue = await _context.Appointments
-                    .Where(a => a.TrainerId == trainer.TrainerId
-                        && a.Status == "Completed"
+                MonthlyRevenue = await appointmentsQuery
+                    .Where(a => a.Status == "Completed"
                         && a.AppointmentDate.Month == DateTime.Now.Month
                         && a.AppointmentDate.Year == DateTime.Now.Year)
                     .SumAsync(a => a.TotalPrice),
-                TotalClients = await _context.Appointments
-                    .Where(a => a.TrainerId == trainer.TrainerId)
+                TotalClients = await appointmentsQuery
                     .Select(a => a.MemberId)
                     .Distinct()
                     .CountAsync()
@@ -83,17 +82,17 @@ namespace GymManagementSystem.Controllers
             }
 
             var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == user.Id);
-            if (trainer == null)
-            {
-                TempData["ErrorMessage"] = "Antrenör kaydı bulunamadı.";
-                return RedirectToAction("Index", "Home");
-            }
 
             var query = _context.Appointments
-                .Where(a => a.TrainerId == trainer.TrainerId)
                 .Include(a => a.Member)!.ThenInclude(m => m!.User)
                 .Include(a => a.Service)
                 .AsQueryable();
+
+            // If trainer exists, scope to that trainer; otherwise (admin without trainer) show all.
+            if (trainer != null)
+            {
+                query = query.Where(a => a.TrainerId == trainer.TrainerId);
+            }
 
             if (!string.IsNullOrWhiteSpace(status) && !status.Equals("All", StringComparison.OrdinalIgnoreCase))
             {
@@ -119,14 +118,15 @@ namespace GymManagementSystem.Controllers
             }
 
             var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == user.Id);
-            if (trainer == null)
+
+            // If trainer exists, limit to that trainer; if admin without trainer, allow any appointment by id.
+            var appointmentQuery = _context.Appointments.AsQueryable();
+            if (trainer != null)
             {
-                TempData["ErrorMessage"] = "Antrenör kaydı bulunamadı.";
-                return RedirectToAction(nameof(MyAppointments));
+                appointmentQuery = appointmentQuery.Where(a => a.TrainerId == trainer.TrainerId);
             }
 
-            var appointment = await _context.Appointments
-                .FirstOrDefaultAsync(a => a.AppointmentId == id && a.TrainerId == trainer.TrainerId);
+            var appointment = await appointmentQuery.FirstOrDefaultAsync(a => a.AppointmentId == id);
 
             if (appointment != null)
             {
