@@ -282,4 +282,20 @@ footer.mt-auto { margin-top: auto; }
     .access-denied-text { font-size: 1.125rem; }
     .access-denied-actions { flex-direction: column !important; }
 }
+
+/* Admin/Trainer KPI cards */
+.card-kpi {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.card-kpi:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 30px rgba(0,0,0,0.14);
+}
+
+.card-kpi h3 {
+    font-size: 2.2rem;
+    font-weight: 800;
+}
 \n/* NAVBAR STYLES */\n.navbar { padding: 1rem 0; transition: all 0.3s ease; }\n.navbar-brand { font-size: 1.5rem; font-weight: 800; }\n.nav-link { font-weight: 500; padding: 0.5rem 1rem !important; transition: all 0.3s ease; position: relative; }\n.nav-link:hover { color: #FF6B35 !important; }\n.nav-link::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #FF6B35; transition: width 0.3s ease; }\n.nav-link:hover::after { width: 80%; }\n.nav-link.text-primary { background: linear-gradient(135deg, #004E89, #00B4D8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600; }\n.nav-link.text-primary:hover { transform: translateY(-2px); }\n
